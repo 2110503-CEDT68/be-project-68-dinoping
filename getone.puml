@@ -1,0 +1,29 @@
+@startuml GetOne_Reservation
+
+title Get Single Reservation API Flow
+
+actor User
+participant "API Server" as API
+database MongoDB
+
+User -> API: GET /api/v1/reservations/{id}\nHeader: Authorization: token
+activate API
+
+API -> API: Verify JWT token
+API -> MongoDB: Find reservation by ID + populate restaurant
+activate MongoDB
+MongoDB --> API: Return reservation object
+deactivate MongoDB
+
+alt Reservation not found
+  API --> User: 404 - Reservation not found
+else Reservation found
+  API -> API: Check authorization\n(if needed)
+  
+  API -> API: Populate restaurant details
+  note right: Include:\n- name\n- address\n- telephone\n- openTime\n- closeTime
+  
+  API --> User: 200 - Success\n{success: true,\ndata: reservation}
+end
+
+deactivate API
