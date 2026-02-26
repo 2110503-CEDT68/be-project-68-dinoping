@@ -1,0 +1,29 @@
+@startuml GetAll_Reservations
+
+title Get All Reservations API Flow
+
+actor User
+participant "API Server" as API
+database MongoDB
+
+User -> API: GET /api/v1/reservations\nHeader: Authorization: token
+activate API
+
+API -> API: Verify JWT token
+API -> API: Check user role
+
+alt User is regular user
+  API -> MongoDB: Query reservations for user ID
+  activate MongoDB
+  MongoDB --> API: Return user's reservations\n(array)
+  deactivate MongoDB
+else User is admin
+  API -> MongoDB: Query all reservations
+  activate MongoDB
+  MongoDB --> API: Return all reservations\n(array)
+  deactivate MongoDB
+end
+
+API --> User: 200 - Success\n{success: true, count: X,\ndata: [reservations]}
+
+deactivate API

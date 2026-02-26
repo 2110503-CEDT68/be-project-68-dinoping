@@ -106,8 +106,14 @@ exports.getRestaurant = async (req, res, next) => {
 //@access Private
 
 exports.createRestaurant = async (req, res, next) => {
-  const restaurant = await Restaurant.create(req.body);
+  
+ try {
+        const restaurant = await Restaurant.create(req.body);
   res.status(201).json({ success: true, data: restaurant });
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ success: false, error: err.message });
+    }
 };
 
 //@desc   Update single restaurant
