@@ -1,0 +1,606 @@
+{
+	"info": {
+		"_postman_id": "restaurant-reservation-test-7-2",
+		"name": "Restaurant Reservation System - Test 7.2",
+		"description": "Comprehensive test following test7_2 pattern: Create restaurant, register user, test 3-reservation limit, CRUD operations, cascade delete",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15205475"
+	},
+	"item": [
+		{
+			"name": "1. Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"admin@example.com\",\n    \"password\":\"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/login",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "auth", "login"]
+				}
+			}
+		},
+		{
+			"name": "2. Post New Restaurant",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create restaurant - Status 201\", function () {\n    pm.response.to.have.status(201);\n});\n\n",
+							"const response = pm.response.json();\n",
+							"console.log(response.data._id);\n",
+							"pm.globals.set(\"global_restaurant_id\", response.data._id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{$randomFullName}}'s Restaurant\",\n    \"address\": \"123 Main Street, Bangkok\",\n    \"telephone\": \"0812345678\",\n    \"openTime\": \"10:00\",\n    \"closeTime\": \"23:00\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants"]
+				}
+			}
+		},
+		{
+			"name": "3. Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Register user - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"telephone\": \"0898765432\",\n    \"password\": \"{{$randomPassword}}\",\n    \"role\": \"user\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/register",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "auth", "register"]
+				}
+			}
+		},
+		{
+			"name": "4. Post Reservation 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create reservation 1 - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"const response = pm.response.json();\n",
+							"console.log(response.data._id);\n",
+							"pm.globals.set(\"global_reservation_id_1\", response.data._id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reservationDate\": \"2026-03-15T19:00:00.000Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id/reservations",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id", "reservations"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "5. Post Reservation 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create reservation 2 - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"const response = pm.response.json();\n",
+							"console.log(response.data._id);\n",
+							"pm.globals.set(\"global_reservation_id_2\", response.data._id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reservationDate\": \"2026-03-16T19:00:00.000Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id/reservations",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id", "reservations"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "6. Post Reservation 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create reservation 3 - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"const response = pm.response.json();\n",
+							"console.log(response.data._id);\n",
+							"pm.globals.set(\"global_reservation_id_3\", response.data._id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reservationDate\": \"2026-03-17T19:00:00.000Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id/reservations",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id", "reservations"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "7. Post Reservation 4 (Should Fail - Status 400)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Exceed reservation limit - Status 400\", function () {\n    pm.response.to.have.status(400);\n});\n\n",
+							"pm.test(\"Error message indicates limit exceeded\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.success).to.equal(false);\n    pm.expect(jsonData.message).to.include('3');\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reservationDate\": \"2026-03-18T19:00:00.000Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id/reservations",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id", "reservations"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "8. Update Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Update reservation - Status 200\", function () {\n    pm.response.to.have.status(200);\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reservationDate\": \"2026-03-20T19:00:00.000Z\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/reservations/:res_id",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "reservations", ":res_id"],
+					"variable": [
+						{
+							"key": "res_id",
+							"value": "{{global_reservation_id_1}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "9. Delete Reservation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete reservation - Status 200\", function () {\n    pm.response.to.have.status(200);\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/reservations/:res_id",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "reservations", ":res_id"],
+					"variable": [
+						{
+							"key": "res_id",
+							"value": "{{global_reservation_id_2}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "10. Login Admin Again",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"admin@example.com\",\n    \"password\":\"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/auth/login",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "auth", "login"]
+				}
+			}
+		},
+		{
+			"name": "11. Delete Restaurant with Cascade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete restaurant - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"pm.test(\"Restaurant deleted successfully\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.success).to.equal(true);\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "12. Get Reservations for Deleted Restaurant (Admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"GET reservations for deleted restaurant - Status 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n",
+							"pm.test(\"No reservations should exist (cascaded delete)\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.count).to.equal(0);\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id/reservations",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id", "reservations"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "13. Get Deleted Restaurant (Should Fail)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get deleted restaurant - Status 400/404\", function () {\n    pm.expect([400, 404]).to.include(pm.response.code);\n});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/restaurants/:r_id",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "5000",
+					"path": ["api", "v1", "restaurants", ":r_id"],
+					"variable": [
+						{
+							"key": "r_id",
+							"value": "{{global_restaurant_id}}"
+						}
+					]
+				}
+			}
+		}
+	]
+}
