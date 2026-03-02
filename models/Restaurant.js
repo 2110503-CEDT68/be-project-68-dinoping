@@ -41,4 +41,11 @@ RestaurantSchema.virtual('reservations', {
   justOne: false
 });
 
+RestaurantSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'restaurant',
+  justOne: false
+});
+
 module.exports = mongoose.model('Restaurant', RestaurantSchema);
