@@ -1,0 +1,59 @@
+@startuml
+skinparam maxMessageSize 150
+skinparam responseMessageBelowArrow true
+
+actor Client
+participant "Express Server" as Server
+participant "Reservation Route" as Route
+participant "Auth Middleware" as Auth
+participant "Reservation Controller" as Controller
+participant "Reservation Model" as Model
+database "MongoDB" as DB
+
+Client -> Server: GET /api/v1/reservations/:id\n(Headers: Authorization: Bearer <token>)
+activate Server
+
+Server -> Route: Route Request
+activate Route
+
+Route -> Auth: protect()
+activate Auth
+
+Auth -> DB: Find User by ID
+activate DB
+DB --> Auth: Return User Data
+deactivate DB
+
+Auth -> Controller: next()
+deactivate Auth
+activate Controller
+
+Controller -> Model: findById(req.params.id).populate('restaurant')
+activate Model
+Model -> DB: Execute Find Query
+activate DB
+DB --> Model: Return Reservation Document
+deactivate DB
+Model --> Controller: Return Reservation
+deactivate Model
+
+alt Reservation Not Found
+    Controller --> Route: Error
+    Route --> Server: 404 Not Found
+    Server --> Client: 404 Error Response
+else Reservation Found
+    alt role != 'admin' AND reservation.user != req.user.id
+        Controller --> Route: Error (Access Denied)
+        Route --> Server: 401 Unauthorized
+        Server --> Client: 401 Error Response
+    else Authorized
+        Controller --> Route: Success Data
+        Route --> Server: 200 OK
+        Server --> Client: 200 Success Response (Reservation Data)
+    end
+end
+
+deactivate Controller
+deactivate Route
+deactivate Server
+@enduml

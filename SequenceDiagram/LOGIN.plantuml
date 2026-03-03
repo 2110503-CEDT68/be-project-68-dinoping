@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "Express Server" as Server
+participant "Auth Route" as Route
+participant "Auth Controller" as Controller
+participant "User Model" as Model
+database "MongoDB" as DB
+
+User -> Server : POST /api/v1/auth/register
+Server -> Route : forward request
+Route -> Controller : register(req,res)
+
+Controller -> Model : create(userData)
+Model -> DB : insert document
+DB --> Model : success
+Model --> Controller : newUser
+
+Controller --> Server : 201 + JWT
+Server --> User : Registration Success
+
+@enduml

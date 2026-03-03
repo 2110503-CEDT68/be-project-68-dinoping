@@ -1,0 +1,72 @@
+@startuml
+skinparam maxMessageSize 150
+skinparam responseMessageBelowArrow true
+
+actor Client
+participant "Express Server" as Server
+participant "Auth Route" as Route
+participant "Auth Controller" as Controller
+participant "User Model" as Model
+database "MongoDB" as DB
+
+Client -> Server: POST /api/v1/auth/login\n{ email, password }
+activate Server
+
+Server -> Route: Route Request
+activate Route
+
+Route -> Controller: Call login()
+deactivate Route
+activate Controller
+
+note over Controller: Validate email and\npassword are provided
+
+alt Missing Email or Password
+    Controller --> Server: Error 400 Bad Request
+    Server --> Client: 400 Error Response
+else Inputs Provided
+    
+    Controller -> Model: findOne({ email }).select('+password')
+    activate Model
+    
+    Model -> DB: Execute Find Query
+    activate DB
+    DB --> Model: Return User Document (or null)
+    deactivate DB
+    
+    Model --> Controller: Return User Data
+    deactivate Model
+
+    alt User Not Found
+        Controller --> Server: Error 401 Invalid credentials
+        Server --> Client: 401 Error Response
+    else User Found
+        
+        Controller -> Model: user.matchPassword(enteredPassword)
+        activate Model
+        note right of Model: Uses bcrypt.compare()
+        Model --> Controller: Return Boolean (isMatch)
+        deactivate Model
+
+        alt Password Mismatch
+            Controller --> Server: Error 401 Invalid credentials
+            Server --> Client: 401 Error Response
+        else Password Match
+            
+            Controller -> Model: user.getSignedJwtToken()
+            activate Model
+            note right of Model: Uses jwt.sign()
+            Model --> Controller: Return JWT String
+            deactivate Model
+
+            note over Controller: Create cookie options\n(from server.js context)
+            
+            Controller --> Server: 200 OK (Set-Cookie, Token)
+            Server --> Client: 200 Success Response\n{ success: true, token: "..." }
+        end
+    end
+end
+
+deactivate Controller
+deactivate Server
+@enduml

@@ -79,6 +79,7 @@ exports.addReview = async (req, res, next) => {
     try {
         const { restaurantId } = req.params;
         const { rating, comment } = req.body;
+        
 
         // Validation
         if (!rating || !comment) {

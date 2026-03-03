@@ -1,0 +1,28 @@
+@startuml
+actor User
+participant "Express Server" as Server
+participant "Reservation Route" as Route
+participant "Auth Middleware" as Auth
+participant "Reservation Controller" as Controller
+participant "Reservation Model" as Model
+database "MongoDB" as DB
+
+User -> Server : DELETE /api/v1/reservations/:id
+Server -> Route
+Route -> Auth : protect()
+Auth --> Route : next()
+
+Route -> Controller : deleteReservation()
+
+Controller -> Model : findById()
+Model -> DB
+DB --> Model
+
+Controller -> Model : delete()
+Model -> DB
+DB --> Model
+
+Controller --> Server : Deleted
+Server --> User : Success
+
+@enduml
