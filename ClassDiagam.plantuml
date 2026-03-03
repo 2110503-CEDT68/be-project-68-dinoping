@@ -1,0 +1,86 @@
+' @startuml
+' skinparam classAttributeIconSize 0
+' skinparam monochrome true
+
+' class User {
+'   - _id: ObjectId
+'   + name: String
+'   + email: String
+'   + telephone: String
+'   + role: String ["user", "admin"]
+'   - password: String
+'   + resetPasswordToken: String
+'   + resetPasswordExpire: Date
+'   + createdAt: Date
+'   --
+'   + getSignedJwtToken(): String
+'   + matchPassword(enteredPassword: String): Promise<Boolean>
+' }
+
+' class Restaurant {
+'   - _id: ObjectId
+'   + name: String
+'   + address: String
+'   + telephone: String
+'   + openTime: String
+'   + closeTime: String
+'   + createdAt: Date
+'   --
+'   + reservations: Virtual<List<Reservation>>
+' }
+
+' class Reservation {
+'   - _id: ObjectId
+'   + reservationDate: Date
+'   + user: ObjectId
+'   + restaurant: ObjectId
+'   + createdAt: Date
+' }
+
+' ' --- Relationships ---
+' ' User makes Reservations
+' User "1" -- "0..*" Reservation : makes >
+
+' ' Restaurant has Reservations
+' Restaurant "1" -- "0..*" Reservation : has <
+
+' ' Note for foreign keys
+' Reservation ..> User : <<ref>>
+' Reservation ..> Restaurant : <<ref>>
+
+' @enduml
+
+@startuml
+
+class User {
+    +_id : ObjectId
+    +name : String
+    +email : String
+    +password : String
+    +role : String
+    --
+    +matchPassword()
+    +getSignedJwtToken()
+}
+
+class Restaurant {
+    +_id : ObjectId
+    +name : String
+    +address : String
+    +phone : String
+    +openTime : String
+    +closeTime : String
+}
+
+class Reservation {
+    +_id : ObjectId
+    +date : Date
+    +time : String
+    +user : ObjectId
+    +restaurant : ObjectId
+}
+
+User "1" -- "many" Reservation
+Restaurant "1" -- "many" Reservation
+
+@enduml

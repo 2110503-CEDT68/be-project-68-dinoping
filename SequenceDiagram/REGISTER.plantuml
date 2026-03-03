@@ -1,0 +1,56 @@
+@startuml
+skinparam maxMessageSize 150
+skinparam responseMessageBelowArrow true
+
+actor Client
+participant "Express Server" as Server
+participant "Auth Route" as Route
+participant "Auth Controller" as Controller
+participant "User Model" as Model
+database "MongoDB" as DB
+
+Client -> Server: POST /api/v1/auth/register\n{ name, email, telephone, password, role }
+activate Server
+
+Server -> Route: Route Request
+activate Route
+
+Route -> Controller: Call register()
+deactivate Route
+activate Controller
+
+Controller -> Model: create(req.body)
+activate Model
+
+
+Model -> Model: Generate salt (bcrypt.genSalt)
+Model -> Model: Hash password (bcrypt.hash)
+
+Model -> DB: Insert New User Document
+activate DB
+
+alt Validation Error (e.g., Duplicate Email or Missing Fields)
+    DB --> Model: Throw Mongoose Validation Error
+    Model --> Controller: Return Error
+    Controller --> Server: 400 Bad Request
+    Server --> Client: 400 Error Response
+else Insert Successful
+    DB --> Model: Return Created User Document
+    deactivate DB
+    
+    Model --> Controller: Return User Object
+    deactivate Model
+
+    Controller -> Model: user.getSignedJwtToken()
+    activate Model
+    Model --> Controller: Return JWT String
+    deactivate Model
+
+    
+    Controller --> Server: 200/201 OK (Set-Cookie, Token)
+    Server --> Client: Success Response\n{ success: true, token: "..." }
+end
+
+deactivate Controller
+deactivate Server
+@enduml

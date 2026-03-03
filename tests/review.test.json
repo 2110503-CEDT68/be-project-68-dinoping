@@ -1,0 +1,288 @@
+{
+  "info": {
+    "_postman_id": "review-test-collection",
+    "name": "Restaurant Review API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Register User 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"John Doe\", \"email\": \"john@example.com\", \"telephone\": \"0812345678\", \"password\": \"password123\", \"role\": \"user\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Register User 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Jane Smith\", \"email\": \"jane@example.com\", \"telephone\": \"0812345679\", \"password\": \"password123\", \"role\": \"user\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login User 1",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"john@example.com\", \"password\": \"password123\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Restaurant - Get All Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants"]
+        }
+      }
+    },
+    {
+      "name": "Review - Add Review to Restaurant (User 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user1_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rating\": 5, \"comment\": \"Excellent food and great service!\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/reviews",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "reviews"]
+        }
+      }
+    },
+    {
+      "name": "Review - Try Add Another Review (Should Fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user1_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rating\": 4, \"comment\": \"Good restaurant\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/reviews",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "reviews"]
+        }
+      }
+    },
+    {
+      "name": "Review - Add Review from User 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user2_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rating\": 4, \"comment\": \"Very good experience\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/reviews",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "reviews"]
+        }
+      }
+    },
+    {
+      "name": "Review - Get All Reviews for Restaurant",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/reviews",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "reviews"]
+        }
+      }
+    },
+    {
+      "name": "Review - Get Average Rating",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/rating",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "rating"]
+        }
+      }
+    },
+    {
+      "name": "Review - Get Single Review",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/v1/reviews/{{review_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Review - Update Review",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user1_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rating\": 4, \"comment\": \"Updated review - still great!\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/reviews/{{review_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Review - Delete Review",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user1_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/v1/reviews/{{review_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "reviews", "{{review_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Review - Invalid Rating (Should Fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{user1_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rating\": 10, \"comment\": \"Invalid rating\"}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/v1/restaurants/{{restaurant_id}}/reviews",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "v1", "restaurants", "{{restaurant_id}}", "reviews"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+' กำหนดสีให้ดูสวยงามอ่านง่าย
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  ArrowColor Black
+}
+
+actor "Guest" as Guest
+actor "User" as User
+actor "Admin" as Admin
+
+' การสืบทอดสิทธิ์ (User ทำสิ่งที่ Guest ทำได้, Admin ทำสิ่งที่ User ทำได้)
+Guest <|-- User
+User <|-- Admin
+
+rectangle "Restaurant Reservation API" {
+  
+  ' ระบบ Authentication
+  usecase "Register Account" as UC_Register
+  usecase "Login" as UC_Login
+  usecase "Get Own Profile (/me)" as UC_Profile
+  usecase "Logout" as UC_Logout
+  
+  ' ระบบ ร้านอาหาร (Restaurants)
+  usecase "View Restaurants" as UC_ViewRes
+  usecase "Manage Restaurants\n(Create, Update, Delete)" as UC_ManageRes
+  
+  ' ระบบ การจอง (Reservations)
+  usecase "View Own Reservations" as UC_ViewOwnRsv
+  usecase "Make Reservation\n(Max 3 per User)" as UC_MakeRsv
+  usecase "Update Own Reservation" as UC_UpdateOwnRsv
+  usecase "Delete Own Reservation" as UC_DeleteOwnRsv
+  
+  usecase "View All Reservations" as UC_ViewAllRsv
+  usecase "Manage Any Reservation\n(Update, Delete)" as UC_ManageAnyRsv
+}
+
+' ความสัมพันธ์ของ Guest
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_ViewRes
+
+' ความสัมพันธ์ของ User (เฉพาะสิ่งที่ทำเพิ่มได้จาก Guest)
+User --> UC_Profile
+User --> UC_Logout
+User --> UC_ViewOwnRsv
+User --> UC_MakeRsv
+User --> UC_UpdateOwnRsv
+User --> UC_DeleteOwnRsv
+
+' ความสัมพันธ์ของ Admin (เฉพาะสิ่งที่ทำเพิ่มได้จาก User)
+Admin --> UC_ManageRes
+Admin --> UC_ViewAllRsv
+Admin --> UC_ManageAnyRsv
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+class User {
+  + _id: ObjectId
+  + name: String
+  + email: String
+  + telephone: String
+  + role: String = 'user'
+  + password: String
+  + resetPasswordToken: String
+  + resetPasswordExpire: Date
+  + createdAt: Date
+  --
+  + getSignedJwtToken(): String
+  + matchPassword(enteredPassword: String): Boolean
+}
+
+class Restaurant {
+  + _id: ObjectId
+  + name: String
+  + address: String
+  + telephone: String
+  + openTime: String
+  + closeTime: String
+  + createdAt: Date
+  --
+  + reservations: Reservation[] <<Virtual>>
+}
+
+class Reservation {
+  + _id: ObjectId
+  + reservationDate: Date
+  + user: ObjectId
+  + restaurant: ObjectId
+  + createdAt: Date
+}
+
+User "1" -- "0..*" Reservation : makes >
+Restaurant "1" -- "0..*" Reservation : has >
+@enduml

@@ -1,0 +1,80 @@
+@startuml
+skinparam maxMessageSize 150
+skinparam responseMessageBelowArrow true
+
+actor Client
+participant "Express Server" as Server
+participant "Reservation Route" as Route
+participant "Auth Middleware" as Auth
+participant "Reservation Controller" as Controller
+participant "Reservation Model" as Model
+database "MongoDB" as DB
+
+Client -> Server: PUT /api/v1/reservations/:id\n(Headers: Authorization: Bearer <token>, Body: { updateData })
+activate Server
+
+Server -> Route: Route Request
+activate Route
+
+Route -> Auth: protect() & authorize('admin', 'user')
+activate Auth
+
+Auth -> DB: Find User by decoded token ID
+activate DB
+DB --> Auth: Return User Data (including role and id)
+deactivate DB
+
+alt Invalid Token or Unauthorized Role
+    Auth --> Route: Error
+    Route --> Server: 401 Unauthorized / 403 Forbidden
+    Server --> Client: 401/403 Error Response
+else Token Valid & Role Authorized
+    Auth -> Controller: next() (Forward to updateReservation)
+    deactivate Auth
+    activate Controller
+
+    Controller -> Model: findById(req.params.id)
+    activate Model
+    
+    Model -> DB: Execute Find Query
+    activate DB
+    DB --> Model: Return Reservation Document
+    deactivate DB
+    
+    Model --> Controller: Return Reservation
+    deactivate Model
+
+    alt Reservation Not Found
+        Controller --> Route: Error
+        Route --> Server: 404 Not Found
+        Server --> Client: 404 Error Response
+    else Reservation Found
+        
+        note over Controller: Check Ownership
+        alt role != 'admin' AND reservation.user != req.user.id
+            Controller --> Route: Error (Not Owner)
+            Route --> Server: 401 Unauthorized
+            Server --> Client: 401 Error Response
+        else Authorized to Update
+            Controller -> Model: findByIdAndUpdate(id, req.body, { new: true, runValidators: true })
+            activate Model
+            
+            Model -> DB: Execute Update Query
+            activate DB
+            DB --> Model: Return Updated Document
+            deactivate DB
+            
+            Model --> Controller: Return Updated Reservation
+            deactivate Model
+
+            Controller --> Route: Success Data
+            Route --> Server: 200 OK
+            Server --> Client: 200 Success Response { success: true, data: { updatedReservation } }
+        end
+    end
+    deactivate Controller
+end
+
+deactivate Route
+deactivate Server
+@enduml
