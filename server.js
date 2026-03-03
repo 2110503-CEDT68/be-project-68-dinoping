@@ -10,6 +10,7 @@ connectDB();
 
 const restaurant  = require('./routes/restaurants');
 const auth = require('./routes/auth');
+const reservations =require('./routes/reservations');
 const app = express();
 
 
@@ -19,6 +20,7 @@ app.set('query parser','extended');
 app.use(cookieParser());
 app.use('/api/v1/restaurants',restaurant);
 app.use('/api/v1/auth',auth);
+app.use('/api/v1/reservations',reservations);
 
 const PORT = process.env.PORT || 5000;
 
