@@ -12,14 +12,16 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router({ mergeParams: true });
 
-// Public routes
-router.get('/restaurants/:restaurantId/reviews', getReviews);
-router.get('/restaurants/:restaurantId/rating', getRestaurantRating);
-router.get('/:id', getReview);
 
-// Protected routes (require authentication)
-router.post('/restaurants/:restaurantId/reviews', protect, addReview);
-router.put('/:id', protect, updateReview);
-router.delete('/:id', protect, deleteReview);
+router.route('/')
+  .get(getReviews)
+  .post(protect, addReview);
+
+router.get('/rating', getRestaurantRating);
+
+router.route('/:id')
+  .get(getReview)
+  .put(protect, updateReview)
+  .delete(protect, deleteReview);
 
 module.exports = router;
