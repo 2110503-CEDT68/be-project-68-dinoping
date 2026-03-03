@@ -1,10 +1,10 @@
-//@desc   Get all hospitals
-//@route  Get /api/v1/hospitals
+//@desc   Get all restaurants
+//@route  Get /api/v1/restaurants
 //@access Public
-const Hospital = require("../models/Hospital");
-const Appointment = require('../models/Appointment');
+const Restaurant = require("../models/Restaurant");
+const Reservation = require('../models/Reservation');
 
-exports.getHospitals = async (req, res, next) => {
+exports.getRestaurants = async (req, res, next) => {
   let query;
 
   // Copy req.query
@@ -24,7 +24,7 @@ exports.getHospitals = async (req, res, next) => {
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`,
   );
-  query = Hospital.find(JSON.parse(queryStr)).populate('appointments');
+  query = Restaurant.find(JSON.parse(queryStr)).populate('reservations');
   // Select Fields
   if (req.query.select) {
     const fields = req.query.select.split(",").join(" ");
@@ -46,10 +46,10 @@ exports.getHospitals = async (req, res, next) => {
   const endIndex = page * limit;
 
   try {
-    const total = await Hospital.countDocuments();
+    const total = await Restaurant.countDocuments();
     query = query.skip(startIndex).limit(limit);
     // Execute query
-    const hospitals = await query;
+    const restaurants = await query;
 // Pagination result
 const pagination = {};
 
@@ -68,8 +68,8 @@ if (startIndex > 0) {
 }
     res.status(200).json({
       success: true,
-      count: hospitals.length,
-      data: hospitals,
+      count: restaurants.length,
+      data: restaurants,
     });
   } catch (err) {
     res.status(400).json({
@@ -78,21 +78,21 @@ if (startIndex > 0) {
   }
 };
 
-//@desc   Get singla hospital
-//@route  Get /api/v1/hospitals/:id
-//@access Publicddwdwddwddwwwwwwww
+//@desc   Get single restaurant
+//@route  Get /api/v1/restaurants/:id
+//@access Public
 
-exports.getHospital = async (req, res, next) => {
+exports.getRestaurant = async (req, res, next) => {
   try {
-    const hospital = await Hospital.findById(req.params.id);
+    const restaurant = await Restaurant.findById(req.params.id);
 
-    if (!hospital) {
+    if (!restaurant) {
       return res.status(400).json({ success: false });
     }
 
     res.status(200).json({
       success: true,
-      data: hospital,
+      data: restaurant,
     });
   } catch (err) {
     res.status(400).json({
@@ -101,33 +101,39 @@ exports.getHospital = async (req, res, next) => {
   }
 };
 
-//@desc   Create a hospital
-//@route  POST /api/v1/hospitals
+//@desc   Create a restaurant
+//@route  POST /api/v1/restaurants
 //@access Private
 
-exports.createHospital = async (req, res, next) => {
-  const hospital = await Hospital.create(req.body);
-  res.status(201).json({ success: true, data: hospital });
+exports.createRestaurant = async (req, res, next) => {
+  
+ try {
+        const restaurant = await Restaurant.create(req.body);
+  res.status(201).json({ success: true, data: restaurant });
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ success: false, error: err.message });
+    }
 };
 
-//@desc   Update singla hospital
-//@route  PUT /api/v1/hospitals/:id
+//@desc   Update single restaurant
+//@route  PUT /api/v1/restaurants/:id
 //@access Private
 
-exports.updateHospital = async (req, res, next) => {
+exports.updateRestaurant = async (req, res, next) => {
   try {
-    const hospital = await Hospital.findByIdAndUpdate(req.params.id, req.body, {
+    const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
 
-    if (!hospital) {
+    if (!restaurant) {
       return res.status(400).json({ success: false });
     }
 
     res.status(200).json({
       success: true,
-      data: hospital,
+      data: restaurant,
     });
   } catch (err) {
     res.status(400).json({
@@ -136,20 +142,20 @@ exports.updateHospital = async (req, res, next) => {
   }
 };
 
-//@desc   Delete singla hospital
-//@route  DELETE /api/v1/hospitals/:id
+//@desc   Delete single restaurant
+//@route  DELETE /api/v1/restaurants/:id
 //@access Private
 
-exports.deleteHospital = async (req, res, next) => {
+exports.deleteRestaurant = async (req, res, next) => {
   try {
-    const hospital = await Hospital.findById(req.params.id);
+    const restaurant = await Restaurant.findById(req.params.id);
 
-    if (!hospital) {
-      return res.status(404).json({success:false,message:`Hospital not found with id of ${req.params.id}`})
+    if (!restaurant) {
+      return res.status(404).json({success:false,message:`Restaurant not found with id of ${req.params.id}`})
 
     }
-    await Appointment.deleteMany({hospital: req.params.id});
-    await Hospital.deleteOne({_id: req.params.id});
+    await Reservation.deleteMany({restaurant: req.params.id});
+    await Restaurant.deleteOne({_id: req.params.id});
 
     res.status(200).json({
       success: true,
