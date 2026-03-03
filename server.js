@@ -8,9 +8,8 @@ dotenv.config({ path: './config/config.env' });
 
 connectDB();
 
-const hospital  = require('./routes/hospitals');
+const restaurant  = require('./routes/restaurants');
 const auth = require('./routes/auth');
-const appointments =require('./routes/appointments');
 const app = express();
 
 
@@ -18,9 +17,8 @@ app.use(express.json());
 app.set('query parser','extended');
 
 app.use(cookieParser());
-app.use('/api/v1/hospitals',hospital);
+app.use('/api/v1/restaurants',restaurant);
 app.use('/api/v1/auth',auth);
-app.use('/api/v1/appointments',appointments);
 
 const PORT = process.env.PORT || 5000;
 
